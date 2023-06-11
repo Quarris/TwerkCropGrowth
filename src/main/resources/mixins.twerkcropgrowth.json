@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.quarris.twerkcropgrowth.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "twerkcropgrowth.refmap.json",
+  "mixins": [
+    "EntityMixin"
+  ],
+  "client": [
+  ],
+  "minVersion": "0.8"
+}
