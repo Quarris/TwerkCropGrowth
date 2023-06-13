@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,11 +15,9 @@ import java.util.stream.Collectors;
 
 public class GrowthHandler {
 
-    public static void applyGrowth(ServerPlayer player) {
+    public static void applyGrowth(ServerPlayer player, TagKey<Block> tag, int radius, int height, int maxBlocks, double chance) {
         if (!player.onGround()) return;
 
-        int radius = Configs.radius.get();
-        int height = Configs.height.get();
         ServerLevel level = player.serverLevel();
         var blocksPoses = BlockPos.betweenClosedStream(new AABB(player.blockPosition()).inflate(radius, height, radius))
             .map(BlockPos::immutable)
@@ -26,11 +25,11 @@ public class GrowthHandler {
             .collect(Collectors.toList());
         Collections.shuffle(blocksPoses);
         blocksPoses.stream()
-            .limit(Configs.maxBlocks.get())
-            .filter(p -> level.random.nextFloat() < Configs.chance.get())
+            .limit(maxBlocks)
+            .filter(p -> level.random.nextFloat() < chance)
             .forEach(pos -> {
                 BlockState state = level.getBlockState(pos);
-                if (!state.is(BlockTags.SAPLINGS) && !state.is(BlockTags.CROPS))
+                if (!state.is(tag))
                     return;
 
                 if (state.getBlock() instanceof BonemealableBlock block) {

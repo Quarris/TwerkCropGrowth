@@ -1,5 +1,6 @@
 package dev.quarris.twerkcropgrowth.mixins;
 
+import dev.quarris.twerkcropgrowth.Configs;
 import dev.quarris.twerkcropgrowth.GrowthHandler;
 import dev.quarris.twerkcropgrowth.ModRef;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ public class EntityMixin {
         }
 
         if (sneak) {
-            GrowthHandler.applyGrowth(player);
+            GrowthHandler.applyGrowth(player, ModRef.TWERK_GROWTH, Configs.twerkRadius.get(), Configs.twerkHeight.get(), Configs.twerkMaxBlocks.get(), Configs.twerkChance.get());
         }
     }
 
