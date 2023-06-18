@@ -3,7 +3,6 @@ package dev.quarris.twerkcropgrowth;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
@@ -27,16 +26,27 @@ public class GrowthHandler {
         blocksPoses.stream()
             .limit(maxBlocks)
             .filter(p -> level.random.nextFloat() < chance)
+            .filter(pos -> level.getBlockState(pos).is(tag))
             .forEach(pos -> {
                 BlockState state = level.getBlockState(pos);
-                if (!state.is(tag))
-                    return;
 
                 if (state.getBlock() instanceof BonemealableBlock block) {
-                    if (block.isValidBonemealTarget(level, pos, state, false) && block.isBonemealSuccess(level, player.getRandom(), pos, state)) {
-                        block.performBonemeal(level, player.getRandom(), pos, state);
+                    if (block.isValidBonemealTarget(level, pos, state, false)) {
+                        if (block.isBonemealSuccess(level, player.getRandom(), pos, state)) {
+                            block.performBonemeal(level, player.getRandom(), pos, state);
+                        }
                         level.levelEvent(1505, pos, 0);
                     }
+                    return;
+                }
+
+                if (state.isRandomlyTicking()) {
+                    for (int i = 0; i < Configs.randomTickTries.get(); i++) {
+                        if (player.getRandom().nextFloat() < Configs.randomTickChance.get()) {
+                            level.getBlockState(pos).randomTick(level, pos, player.getRandom());
+                        }
+                    }
+                    level.levelEvent(1505, pos, 0);
                 }
             });
     }
