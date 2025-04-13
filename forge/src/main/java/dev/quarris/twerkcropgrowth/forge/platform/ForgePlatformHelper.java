@@ -1,6 +1,6 @@
-package dev.quarris.twerkcropgrowth.platform;
+package dev.quarris.twerkcropgrowth.forge.platform;
 
-import dev.quarris.twerkcropgrowth.platform.services.IPlatformHelper;
+import dev.quarris.twerkcropgrowth.common.platform.services.IPlatformHelper;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 

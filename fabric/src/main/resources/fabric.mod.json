@@ -16,7 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.quarris.twerkcropgrowth.TwerkCropGrowth"
+      "dev.quarris.twerkcropgrowth.fabric.TwerkCropGrowth"
+    ],
+    "fabric-datagen": [
+      "dev.quarris.twerkcropgrowth.fabric.DataGen"
     ]
   },
   "mixins": [

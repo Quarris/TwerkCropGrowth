@@ -1,4 +1,4 @@
-package dev.quarris.twerkcropgrowth;
+package dev.quarris.twerkcropgrowth.common;
 
 public class CommonClass {
 

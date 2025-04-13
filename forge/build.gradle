@@ -2,6 +2,9 @@ plugins {
     id 'multiloader-loader'
     id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'com.matthewprenger.cursegradle'
+    id 'com.modrinth.minotaur'
 }
 base {
     archivesName = "${mod_name}-forge-${minecraft_version}"
@@ -12,7 +15,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'official', version: minecraft_version
+    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
 
     copyIdeResources = true //Calls processResources when in dev
 
@@ -86,4 +89,41 @@ sourceSets.each {
     def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
+}
+
+var fileName = "$mod_name-Forge v$project.version ($minecraft_version)"
+var changelog = file('../changelog.md')
+var changelogText = changelog.exists() ? changelog.text : ""
+curseforge {
+    project {
+        apiKey = System.getenv('CURSEFORGE_API_PUBLISH')
+        id = curseforge_id
+        changelog = changelogText
+        changelogType = "markdown"
+        releaseType = release_type
+        addGameVersion minecraft_version // Add the Minecraft versions you're targeting
+        addGameVersion "Forge" // Add the Minecraft versions you're targeting
+
+        mainArtifact(jar) {
+            displayName = fileName
+        }
+    }
+}
+
+modrinth {
+    token = System.getenv('MODRINTH_API_PUBLISH')
+    projectId = modrinth_id
+    versionNumber = project.version
+    versionName = fileName
+    versionType = release_type
+    uploadFile = jar
+    gameVersions = [minecraft_version] // Add the Minecraft versions you're targeting
+    loaders = ["forge"]
+    changelog = changelogText
+}
+
+task publishMod {
+    dependsOn 'curseforge', 'modrinth'
+    group = 'publishing'
+    description = 'Uploads the mod to both CurseForge and Modrinth'
 }

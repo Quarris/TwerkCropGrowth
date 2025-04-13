@@ -1,4 +1,4 @@
-package dev.quarris.twerkcropgrowth.platform.services;
+package dev.quarris.twerkcropgrowth.common.platform.services;
 
 public interface IPlatformHelper {
 

@@ -1,6 +1,12 @@
 plugins {
     id 'multiloader-loader'
     id 'net.neoforged.moddev'
+    id 'com.matthewprenger.cursegradle'
+    id 'com.modrinth.minotaur'
+}
+
+base {
+    archivesName = "${mod_name}-neoforge-${minecraft_version}"
 }
 
 neoForge {
@@ -24,9 +30,11 @@ neoForge {
         }
         data {
             data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
         server {
             server()
+            programArgument '--nogui'
         }
     }
     mods {
@@ -37,3 +45,40 @@ neoForge {
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+var fileName = "$mod_name-NeoForge v$project.version ($minecraft_version)"
+var changelog = file('../changelog.md')
+var changelogText = changelog.exists() ? changelog.text : ""
+curseforge {
+    project {
+        apiKey = System.getenv('CURSEFORGE_API_PUBLISH')
+        id = curseforge_id
+        changelog = changelogText
+        changelogType = "markdown"
+        releaseType = release_type
+        addGameVersion minecraft_version // Add the Minecraft versions you're targeting
+        addGameVersion "NeoForge" // Add the Minecraft versions you're targeting
+
+        mainArtifact(jar) {
+            displayName = fileName
+        }
+    }
+}
+
+modrinth {
+    token = System.getenv('MODRINTH_API_PUBLISH')
+    projectId = modrinth_id
+    versionNumber = project.version
+    versionName = fileName
+    versionType = release_type
+    uploadFile = jar
+    gameVersions = [minecraft_version] // Add the Minecraft versions you're targeting
+    loaders = ["neoforge"]
+    changelog = changelogText
+}
+
+task publishMod {
+    dependsOn 'curseforge', 'modrinth'
+    group = 'publishing'
+    description = 'Uploads the mod to both CurseForge and Modrinth'
+}

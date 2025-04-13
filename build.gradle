@@ -3,4 +3,12 @@ plugins {
     id 'fabric-loom' version '1.10-SNAPSHOT' apply false
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.78' apply false
+    id 'com.matthewprenger.cursegradle' version '1.4.0' apply false
+    id 'com.modrinth.minotaur' version '2.+' apply false
+}
+
+task publishAll {
+    dependsOn ':forge:publishMod', ':fabric:publishMod', ':neoforge:publishMod'
+    group = 'publishing'
+    description = 'Uploads all platform versions to both CurseForge and Modrinth'
 }

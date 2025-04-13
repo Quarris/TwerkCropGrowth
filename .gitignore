@@ -10,3 +10,5 @@
 /common/build/
 /buildSrc/build/
 /buildSrc/.gradle/
+/.gradle/
+/**/generated/

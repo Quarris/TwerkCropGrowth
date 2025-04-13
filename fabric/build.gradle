@@ -1,6 +1,18 @@
 plugins {
     id 'multiloader-loader'
     id 'fabric-loom'
+    id 'com.matthewprenger.cursegradle'
+    id 'com.modrinth.minotaur'
+}
+
+base {
+    archivesName = "${mod_name}-fabric-${minecraft_version}"
+}
+
+repositories {
+    maven { url "https://maven.architectury.dev/" }
+    maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/releases/" }
 }
 
 dependencies {
@@ -11,6 +23,19 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // Add Cloth Config API
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${fabric_cloth_config_api_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    modApi "dev.architectury:architectury-fabric:${fabric_architectury_version}"
+
+    modLocalRuntime "com.terraformersmc:modmenu:${fabric_mod_menu_version}"
+}
+
+fabricApi {
+    configureDataGeneration()
 }
 
 loom {
@@ -35,4 +60,41 @@ loom {
             runDir('runs/server')
         }
     }
+}
+
+var fileName = "$mod_name-Fabric v$project.version ($minecraft_version)"
+var changelog = file('../changelog.md')
+var changelogText = changelog.exists() ? changelog.text : ""
+curseforge {
+    project {
+        apiKey = System.getenv('CURSEFORGE_API_PUBLISH')
+        id = curseforge_id
+        changelog = changelogText
+        changelogType = "markdown"
+        releaseType = release_type
+        addGameVersion minecraft_version // Add the Minecraft versions you're targeting
+        addGameVersion "Fabric" // Add the Minecraft versions you're targeting
+
+        mainArtifact(jar) {
+            displayName = fileName
+        }
+    }
+}
+
+modrinth {
+    token = System.getenv('MODRINTH_API_PUBLISH')
+    projectId = modrinth_id
+    versionNumber = project.version
+    versionName = fileName
+    versionType = release_type
+    uploadFile = jar
+    gameVersions = [minecraft_version] // Add the Minecraft versions you're targeting
+    loaders = ["fabric"]
+    changelog = changelogText
+}
+
+task publishMod {
+    dependsOn 'curseforge', 'modrinth'
+    group = 'publishing'
+    description = 'Uploads the mod to both CurseForge and Modrinth'
 }
